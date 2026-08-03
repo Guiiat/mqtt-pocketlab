@@ -1,0 +1,82 @@
+{
+  "name": "mqtt-pocketlab",
+  "version": "0.1.0",
+  "description": "Local-first MQTT broker, deterministic IoT device simulator, observability console, bounded NDJSON recorder, and safe replay CLI.",
+  "keywords": [
+    "mqtt",
+    "mqtt-broker",
+    "iot",
+    "iot-testing",
+    "simulator",
+    "device-simulator",
+    "broker",
+    "testing",
+    "aedes",
+    "observability",
+    "ndjson",
+    "typescript",
+    "developer-tools",
+    "cli"
+  ],
+  "license": "MIT",
+  "author": "MQTT PocketLab Contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Guiiat/mqtt-pocketlab.git"
+  },
+  "homepage": "https://github.com/Guiiat/mqtt-pocketlab#readme",
+  "bugs": {
+    "url": "https://github.com/Guiiat/mqtt-pocketlab/issues"
+  },
+  "type": "module",
+  "bin": {
+    "mqtt-pocketlab": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "web",
+    "examples",
+    "README.md",
+    "README.zh-CN.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "prebuild": "node scripts/clean.mjs",
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts start",
+    "start": "node dist/cli.js start",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:consumer": "tsc -p tsconfig.consumer.json --noEmit && node -e \"import('mqtt-pocketlab').then(m => { if (typeof m.PocketLab !== 'function') process.exitCode = 1 })\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "verify:package": "node dist/cli.js --version && npm pack --dry-run",
+    "check": "npm run typecheck && npm test && npm run build && npm run test:consumer && npm run verify:package"
+  },
+  "dependencies": {
+    "aedes": "^1.1.1",
+    "commander": "^13.1.0",
+    "express": "^5.1.0",
+    "mqtt": "^5.13.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.16.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

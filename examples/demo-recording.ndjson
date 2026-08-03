@@ -1,0 +1,3 @@
+{"ts":1785722400000,"iso":"2026-08-03T06:00:00.000Z","topic":"demo/climate","payload":"{\"temperatureC\":22.4,\"humidityPct\":51.2}","encoding":"utf8","qos":0,"retain":false,"clientId":"demo-sensor"}
+{"ts":1785722401000,"iso":"2026-08-03T06:00:01.000Z","topic":"demo/climate","payload":"{\"temperatureC\":22.6,\"humidityPct\":51.0}","encoding":"utf8","qos":0,"retain":false,"clientId":"demo-sensor"}
+{"ts":1785722402000,"iso":"2026-08-03T06:00:02.000Z","topic":"demo/alert","payload":"{\"level\":\"warning\",\"message\":\"temperature spike\"}","encoding":"utf8","qos":1,"retain":true,"clientId":"demo-sensor"}

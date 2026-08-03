@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MQTT PocketLab local broker, simulator, recorder, and observability console">
+    <title>MQTT PocketLab</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#overview" aria-label="MQTT PocketLab home">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span><strong>PocketLab</strong><small>MQTT workbench</small></span>
+        </a>
+        <nav aria-label="Main navigation">
+          <a class="active" href="#overview"><span>⌁</span> Overview</a>
+          <a href="#topics"><span>⌗</span> Topic explorer</a>
+          <a href="#devices"><span>◇</span> Virtual devices</a>
+          <a href="#recorder"><span>◉</span> Record & replay</a>
+        </nav>
+        <div class="sidebar-spacer"></div>
+        <section class="safety-card">
+          <span class="eyebrow">Security boundary</span>
+          <strong id="security-mode">Localhost only</strong>
+          <p id="security-copy">Anonymous access stays on this machine.</p>
+        </section>
+        <div class="connection-row">
+          <span class="pulse" id="connection-pulse"></span>
+          <span><strong id="connection-label">Connecting</strong><small id="mqtt-url">mqtt://127.0.0.1:1883</small></span>
+        </div>
+      </aside>
+
+      <main>
+        <header class="topbar" id="overview">
+          <div>
+            <span class="eyebrow">Live laboratory</span>
+            <h1>Your MQTT system,<br><em>under a microscope.</em></h1>
+          </div>
+          <div class="top-actions">
+            <span class="uptime"><small>SESSION UPTIME</small><strong id="uptime">00:00:00</strong></span>
+            <button class="button secondary" id="copy-url" type="button">Copy MQTT URL</button>
+            <a class="button primary" href="#publisher">Publish message <span>↗</span></a>
+          </div>
+        </header>
+
+        <section class="metric-grid" aria-label="Broker metrics">
+          <article class="metric-card accent-lime">
+            <div><span>Messages / sec</span><b class="live-dot">LIVE</b></div>
+            <strong id="message-rate">0</strong>
+            <small id="message-total">0 total messages</small>
+          </article>
+          <article class="metric-card accent-blue">
+            <div><span>Throughput</span><b>1 SEC</b></div>
+            <strong id="byte-rate">0 B/s</strong>
+            <small id="byte-total">0 B transferred</small>
+          </article>
+          <article class="metric-card accent-violet">
+            <div><span>Connected clients</span><b>NOW</b></div>
+            <strong id="client-count">0</strong>
+            <small id="device-client-count">0 PocketLab devices</small>
+          </article>
+          <article class="metric-card accent-orange">
+            <div><span>Discovered topics</span><b>CAPPED 500</b></div>
+            <strong id="topic-count">0</strong>
+            <small>Latest value kept in memory</small>
+          </article>
+        </section>
+
+        <section class="panel activity-panel">
+          <div class="panel-heading">
+            <div><span class="eyebrow">Traffic pulse</span><h2>Live throughput</h2></div>
+            <div class="legend"><span><i class="lime"></i> messages/s</span><span><i class="blue"></i> KiB/s</span></div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="throughput-chart" aria-label="Live throughput chart"></canvas>
+            <div class="chart-empty" id="chart-empty">Waiting for the first message…</div>
+          </div>
+        </section>
+
+        <div class="content-grid">
+          <section class="panel topics-panel" id="topics">
+            <div class="panel-heading compact">
+              <div><span class="eyebrow">Broker memory</span><h2>Topic explorer</h2></div>
+              <label class="search"><span>⌕</span><input id="topic-search" type="search" placeholder="Filter topics" autocomplete="off"></label>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Topic</th><th>Latest payload</th><th>QoS</th><th>Retain</th><th>Count</th><th>Updated</th></tr></thead>
+                <tbody id="topic-rows"><tr><td colspan="6" class="empty">No topics yet. Start a scenario or publish a message.</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="panel clients-panel">
+            <div class="panel-heading compact"><div><span class="eyebrow">Presence</span><h2>Clients</h2></div><span class="count-pill" id="clients-pill">0 online</span></div>
+            <div id="client-list" class="client-list"><p class="empty">No MQTT clients connected.</p></div>
+          </aside>
+        </div>
+
+        <div class="workspace-grid">
+          <section class="panel" id="devices">
+            <div class="panel-heading">
+              <div><span class="eyebrow">Deterministic simulation</span><h2>Virtual device fleet</h2></div>
+              <span class="count-pill" id="devices-pill">0 running</span>
+            </div>
+            <form id="device-form" class="inline-form">
+              <label><span>TYPE</span><select name="type"><option value="climate">Temperature + humidity</option><option value="co2">CO₂ + air quality</option><option value="meter">Electricity meter</option></select></label>
+              <label><span>DEVICE ID</span><input name="id" required maxlength="48" pattern="[a-zA-Z0-9][a-zA-Z0-9_-]{0,47}" value="sensor-01"></label>
+              <label><span>SEED</span><input name="seed" type="number" min="0" value="42"></label>
+              <label><span>INTERVAL</span><input name="intervalMs" type="number" min="100" max="60000" value="2000"><small>ms</small></label>
+              <button class="button primary" type="submit">Start device</button>
+            </form>
+            <div class="scenario-strip"><span>QUICK SCENARIOS</span><div id="scenario-buttons"></div></div>
+            <div id="device-list" class="device-list"><p class="empty">Your simulated fleet will appear here.</p></div>
+          </section>
+
+          <section class="panel publisher-panel" id="publisher">
+            <div class="panel-heading"><div><span class="eyebrow">Workbench</span><h2>Publish message</h2></div><span class="icon-badge">↗</span></div>
+            <form id="publish-form" class="stack-form">
+              <label><span>TOPIC</span><input name="topic" required value="demo/hello" placeholder="factory/line-1/status"></label>
+              <label><span>PAYLOAD <small>UTF-8 · max 1 MiB</small></span><textarea name="payload" rows="8" spellcheck="false">{
+  "hello": "PocketLab"
+}</textarea></label>
+              <div class="form-row">
+                <label><span>QOS</span><select name="qos"><option value="0">0 — at most once</option><option value="1">1 — at least once</option><option value="2">2 — exactly once</option></select></label>
+                <label class="toggle-label"><span>RETAIN</span><input name="retain" type="checkbox"><i></i></label>
+              </div>
+              <button class="button primary wide" type="submit">Publish to broker <span>⌁</span></button>
+            </form>
+          </section>
+        </div>
+
+        <div class="workspace-grid bottom-grid">
+          <section class="panel" id="recorder">
+            <div class="panel-heading"><div><span class="eyebrow">Portable evidence</span><h2>Record & replay</h2></div><span class="status-chip" id="record-status">IDLE</span></div>
+            <div class="recorder-grid">
+              <form id="record-form" class="stack-form">
+                <label><span>NDJSON FILENAME</span><input name="file" value="demo-session.ndjson" pattern="[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}\.ndjson"></label>
+                <p>Capture topic, payload encoding, QoS, retained flag, source client, and timestamp.</p>
+                <div class="button-row"><button class="button danger" type="submit" id="record-start">● Start recording</button><button class="button secondary" type="button" id="record-stop">Stop</button></div>
+              </form>
+              <form id="replay-form" class="stack-form">
+                <label><span>RECORDING FILE</span><input name="file" value="demo-session.ndjson" pattern="[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}\.ndjson"></label>
+                <label><span>SPEED MULTIPLIER</span><input name="speed" type="number" min="0.05" max="100" step="0.05" value="1"></label>
+                <div class="button-row"><button class="button primary" type="submit">▶ Replay</button><button class="button secondary" type="button" id="replay-stop">Stop</button></div>
+              </form>
+            </div>
+          </section>
+
+          <section class="panel messages-panel">
+            <div class="panel-heading"><div><span class="eyebrow">Last 100</span><h2>Message stream</h2></div><button class="text-button" type="button" id="clear-messages">Clear view</button></div>
+            <div id="message-list" class="message-list"><p class="empty">Messages will stream in live.</p></div>
+          </section>
+        </div>
+
+        <footer><span>MQTT PocketLab <b>v0.1.0</b></span><span>MQTT 3.1 / 3.1.1 · local-first · MIT licensed</span></footer>
+      </main>
+    </div>
+    <div class="toast-region" id="toast-region" aria-live="polite"></div>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
