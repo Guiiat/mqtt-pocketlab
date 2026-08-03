@@ -68,7 +68,7 @@
   },
   "dependencies": {
     "aedes": "^1.1.1",
-    "commander": "^13.1.0",
+    "commander": "^15.0.0",
     "express": "^5.1.0",
     "mqtt": "^5.13.3"
   },
