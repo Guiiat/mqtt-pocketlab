@@ -67,7 +67,7 @@
     "check": "npm run typecheck && npm test && npm run build && npm run test:consumer && npm run verify:package"
   },
   "dependencies": {
-    "aedes": "^1.1.1",
+    "aedes": "^1.1.2",
     "commander": "^13.1.0",
     "express": "^5.1.0",
     "mqtt": "^5.13.3"
